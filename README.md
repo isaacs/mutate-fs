@@ -2,7 +2,7 @@
 
 Mutate the filesystem behavior for tests.
 
-![X-Men](x-men.gif "mutants")
+![X-Men](xmen.gif "mutants")
 
 This is not a full-fledged filesystem mock library as much as it is a
 way to just modify the data that's returned, especially to trigger
