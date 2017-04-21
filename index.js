@@ -157,3 +157,31 @@ const mutate = exports.mutate = (method, fn) => {
     fs[method + 'Sync'] = origSync
   }
 }
+
+const delay = exports.delay = (method, ms) => {
+  const orig = fs[method]
+  const origSync = fs[method + 'Sync']
+  fs[method] = function () {
+    const cb = arguments[arguments.length - 1]
+    const end = Date.now() + ms
+    arguments[arguments.length - 1] = (error, data) =>
+      setTimeout(_ => cb(error, data), end - Date.now())
+    orig.apply(fs, arguments)
+  }
+
+  fs[method + 'Sync'] = function () {
+    const end = Date.now() + ms
+    try {
+      return origSync.apply(this, arguments)
+    } finally {
+      while (end > Date.now()) {
+        fs.readFileSync(__filename)
+      }
+    }
+  }
+
+  return _ => {
+    fs[method] = orig
+    fs[method + 'Sync'] = origSync
+  }
+}

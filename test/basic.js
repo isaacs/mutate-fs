@@ -187,3 +187,24 @@ t.test('stat type', t => {
     })
   }))
 })
+
+t.test('delay', t => {
+  const ms = 100
+  // mutate so that it doesn't take any time at all
+  const stat = fs.statSync(__filename)
+  const resetStat = mutateFS.pass('stat', stat)
+  const resetDelay = mutateFS.delay('stat', 100)
+  t.tearDown(_ => (resetStat(), resetDelay()))
+
+  const before = Date.now()
+  t.equal(fs.statSync('whatever'), stat)
+  t.ok(Date.now() - before >= 100, 'at least 100ms passed')
+  const beforeAsync = Date.now()
+  fs.stat('yolo haha', (er, st) => {
+    t.equal(st, stat)
+    if (er)
+      throw er
+    t.ok(Date.now() - beforeAsync >= 100, 'at least 100ms passed')
+    t.end()
+  })
+})

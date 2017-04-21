@@ -99,6 +99,13 @@ to be exercised.
 The name is a reference to [Zeno's Paradox of Achilles and the
 Tortoise](https://en.wikipedia.org/wiki/Zeno%27s_paradoxes#Achilles_and_the_tortoise).
 
+### delay(method, ms)
+
+Delay calls to fs[method] by the specified number of milliseconds.
+
+Delays sync calls by doing a bunch of unnecessary file reads in a
+busy-loop.
+
 ### statFail(error)
 
 Like `fail()`, but called on all three of fstat, lstat, and stat.
