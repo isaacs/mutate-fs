@@ -28,6 +28,31 @@ t.test('zenoRead', t => {
   })
 })
 
+t.test('zenoRead, defaults', t => {
+  t.tearDown(mutateFS.zenoRead())
+  const fd = fs.openSync(__filename, 'r')
+  const size = fs.fstatSync(fd).size
+  const buf = Buffer.alloc(size)
+  fs.read(fd, buf, (er, bytesRead) => {
+    if (er)
+      throw er
+    t.notEqual(bytesRead, size)
+    bytesRead = fs.readSync(fd, buf)
+    t.notEqual(bytesRead, size)
+    fs.closeSync(fd)
+
+    // don't try to split 1 byte though
+    fs.writeFileSync('one-byte', '1')
+    const fd1 = fs.openSync('one-byte', 'r')
+    fs.read(fd1, buf, (er, bytesRead) => {
+      t.equal(bytesRead, 1)
+      fs.closeSync(fd1)
+      fs.unlinkSync('one-byte')
+      t.end()
+    })
+  })
+})
+
 t.test('pass', t => {
   t.tearDown(mutateFS.pass('stat', 'hello'))
   t.equal(fs.statSync('nope'), 'hello')

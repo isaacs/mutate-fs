@@ -71,30 +71,23 @@ Whenever `fs[method]` or `fs[methodSync]` is called, apply the
 `fn` can either mutate the data in-place (and return nothing) or can
 return a `[error, data]` array which is treated as the new result.
 
+### mutateArgs(method, fn)
+
+Mutate the arguments passed _into_ the fs method specified.
+
+`fn` takes an array of arguments, and should return the munged set of
+arguments to call the method with.
+
 ### zenoRead()
 
 Make all `read()` calls appear to return half as many bytes.  This
 exercises frequently overlooked edge cases in many programs that call
 `fs.read()` directly.
 
-#### Caveats:
-
-Note that the underlying call to `fs.read()` is still made with the
-same arguments.  Only the `bytesRead` return value is modified.  So,
-if you are passing in a buffer, it may be modified beyond the apparent
-`bytesRead` value.
-
-Also, this means that the default file position will be updated on the
-system beyond the actual bytes returned.  So, `fs.readFileSync` will
-return half as much data, and in general any un-positioned read()
-calls will behave strangely.
-
-Built-in Node.js methods that access the fs binding directly will
-bypass this mutation, so `fs.readFile` will be unaffected.
-
-In general, this is fine, because `fs.readFile` and `fs.readFileSync`
-account for partial reads in a very well-tested manner, and don't need
-to be exercised.
+As of version 2, this works by modifying the `length` argument passed
+to `fs.read` and `fs.readSync'.  In version 1.x of this library, it
+only modified the _reported_ number of bytes read, limiting its
+utility for testing shortened non-positioned (file-scanning) reads.
 
 The name is a reference to [Zeno's Paradox of Achilles and the
 Tortoise](https://en.wikipedia.org/wiki/Zeno%27s_paradoxes#Achilles_and_the_tortoise).

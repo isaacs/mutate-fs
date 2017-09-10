@@ -9,8 +9,17 @@ const fs = require('fs')
 // zenoRead()
 // Make fs.read() calls return half as much data, zeno's paradox style
 const zenoRead = exports.zenoRead = _ => {
-  return mutate('read', (error, bytesRead) =>
-                [error, bytesRead > 1 ? Math.floor(bytesRead/2) : bytesRead])
+  return mutateArgs('read', (args) => {
+    const cb = typeof args[args.length - 1] === 'function' ? args.pop() : null
+    const fd = args.shift()
+    const buffer = args.shift()
+    const offset = args.shift() || 0
+    const length = typeof args[0] === 'number' ? args[0] : buffer.length
+    args.shift()
+    const position = args.shift() || null
+    const zlen = length > 1 ? Math.floor(length / 2) : length
+    return [fd, buffer, offset, zlen, position, cb]
+  })
 }
 
 const constants = require('constants')
@@ -113,6 +122,27 @@ const statMutate = exports.statMutate = fn => {
   const unmutatef = mutate('fstat', fn)
 
   return _ => unmutate(unmutatel(unmutatef()))
+}
+
+// mutateArgs(method, fn)
+// Pass in the arguments to method to fn(), which returns a mutated
+// set of arguments that the function will be called with
+const mutateArgs = exports.mutateArgs = (method, fn) => {
+  const orig = fs[method]
+  const origSync = fs[method + 'Sync']
+
+  fs[method] = function () {
+    orig.apply(fs, fn(Array.from(arguments)))
+  }
+
+  fs[method + 'Sync'] = function () {
+    return origSync.apply(fn, fn(Array.from(arguments)))
+  }
+
+  return _ => {
+    fs[method] = orig
+    fs[method + 'Sync'] = origSync
+  }
 }
 
 // mutate(method, fn)
