@@ -13,10 +13,9 @@ const zenoRead = exports.zenoRead = _ => {
     const cb = typeof args[args.length - 1] === 'function' ? args.pop() : null
     const fd = args.shift()
     const buffer = args.shift()
-    const offset = args.shift() || 0
-    const length = typeof args[0] === 'number' ? args[0] : buffer.length
-    args.shift()
-    const position = args.shift() || null
+    const offset = args.shift()
+    const length = args.shift()
+    const position = args.shift()
     const zlen = length > 1 ? Math.floor(length / 2) : length
     return [fd, buffer, offset, zlen, position, cb]
   })

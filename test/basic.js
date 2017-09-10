@@ -33,18 +33,16 @@ t.test('zenoRead, defaults', t => {
   const fd = fs.openSync(__filename, 'r')
   const size = fs.fstatSync(fd).size
   const buf = Buffer.alloc(size)
-  fs.read(fd, buf, (er, bytesRead) => {
-    if (er)
-      throw er
+  fs.read(fd, buf, 0, size, null, (er, bytesRead) => {
     t.notEqual(bytesRead, size)
-    bytesRead = fs.readSync(fd, buf)
+    bytesRead = fs.readSync(fd, buf, 0, size, null)
     t.notEqual(bytesRead, size)
     fs.closeSync(fd)
 
     // don't try to split 1 byte though
     fs.writeFileSync('one-byte', '1')
     const fd1 = fs.openSync('one-byte', 'r')
-    fs.read(fd1, buf, (er, bytesRead) => {
+    fs.read(fd1, buf, 0, 1, null, (er, bytesRead) => {
       t.equal(bytesRead, 1)
       fs.closeSync(fd1)
       fs.unlinkSync('one-byte')
