@@ -63,10 +63,13 @@ t.test('pass', t => {
 
 t.test('fail', t => {
   t.tearDown(mutateFS.fail('open', new Error('not open')))
-  t.throws(_ => fs.openSync(__filename, 'r'), { message: 'not open' })
+  t.throws(_ => fs.openSync(__filename, 'r'), {
+    message: 'not open',
+    callstack: /Error: trace/
+  })
   fs.open(__filename, 'r', (er, fd) => {
     t.notOk(fd)
-    t.match(er, { message: 'not open' })
+    t.match(er, { message: 'not open', callstack: /Error: trace/ })
     t.end()
   })
 })

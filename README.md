@@ -55,6 +55,9 @@ error.  Whenever `fs[methodSync]` is called, throw the supplied error.
 
 Note that this means that the actual underlying fs method is not called.
 
+Error is decorated with a `callstack` string, which is the stack where
+the fail method was actually called from.
+
 ### pass(method, data)
 
 The oppose of `fail`.  Whenever `fs[method]` is called, call the

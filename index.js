@@ -100,10 +100,15 @@ const fail = exports.fail = (method, error) => {
 
   fs[method] = function () {
     const cb = arguments[arguments.length - 1]
-    setTimeout(_ => cb(error))
+    const callstack = new Error('trace').stack
+    setTimeout(_ => {
+      error.callstack = callstack
+      cb(error)
+    })
   }
 
   fs[method + 'Sync'] = _ => {
+    error.callstack = new Error('trace').stack
     throw error
   }
 
