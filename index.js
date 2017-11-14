@@ -102,13 +102,20 @@ const fail = exports.fail = (method, error) => {
     const cb = arguments[arguments.length - 1]
     const callstack = new Error('trace').stack
     setTimeout(_ => {
-      error.callstack = callstack
+      Object.defineProperty(error, 'callstack', {
+        get: _ => callstack,
+        configurable: true
+      })
       cb(error)
     })
   }
 
   fs[method + 'Sync'] = _ => {
-    error.callstack = new Error('trace').stack
+    const callstack = new Error('trace').stack
+    Object.defineProperty(error, 'callstack', {
+      get: _ => callstack,
+      configurable: true
+    })
     throw error
   }
 
